@@ -43,6 +43,6 @@ python main.py final-extract --help
 
 Result
 
-![](D:\postgraduate\LLM Engineer\extract_data\pic1.png)
+![](.\pic1.png)
 
-![](D:\postgraduate\LLM Engineer\extract_data\res1.png)
+![](.\res1.png)
