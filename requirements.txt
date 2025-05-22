@@ -35,3 +35,4 @@ nltk~=3.9.1
 opencv-python~=4.11.0.86
 pytesseract~=0.3.13
 pdf2image~=1.17.0
+click~=8.1.8

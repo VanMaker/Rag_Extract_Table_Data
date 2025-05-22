@@ -11,7 +11,8 @@ from typing import List, Optional, Tuple
 from concurrent.futures import ProcessPoolExecutor
 import re, math, sys, pathlib
 import pandas as pd
-
+import click
+from pathlib import Path
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
@@ -72,7 +73,7 @@ def process_page(args: Tuple) -> Optional[pd.DataFrame]:
         if not images:
             return None
 
-        # 转换为OpenCV格式
+        # 转换OpenCV格式
         img = cv2.cvtColor(np.array(images[0]), cv2.COLOR_RGB2BGR)
 
         # 预处理
@@ -228,11 +229,21 @@ def extract_scanned_pdf(
 
     return pd.concat(valid_dfs, ignore_index=True)
 
+@click.group()
+def cli():
+    pass
 
-if __name__ == "__main__":
-    concat_page("240827_bhpannualreport2024.pdf", 226, 227, "concat.pdf", False)
+@cli.command()
+@click.option('--pdf-path', help='pdf file you want to process')
+@click.option('--num1', type=int, default=1, help='the first page')
+@click.option('--num2', type=int, default=2, help='the second page')
+@click.option('--target-file', default="concat.pdf", help='target file')
+@click.option('--keyword', default="Olympic Dam", help='the keyword you want to extract')
+@click.option('--method', default=False, help='concatenate method:horizontal or vertical')
+def final_extract(pdf_path, num1, num2, target_file, keyword, method):
+    concat_page(pdf_path, num1, num2, target_file, method)
     df = extract_scanned_pdf(
-        pdf_path="concat.pdf",
+        pdf_path=target_file,
         pages=[1],  # 默认提取第一页
         dpi=800,  # 指定分辨率
         poppler_path=r"C:\Program Files\poppler-24.08.0\Library\bin"
@@ -240,10 +251,14 @@ if __name__ == "__main__":
 
     # 保存结果为一csv文件
     df.to_csv("output.csv", index=False, encoding='utf-8-sig')
-    print("提取完成，结果已保存到 output.csv")
+    # print("提取完成，结果已保存到 output.csv")
 
     # 对该csv文件依据关键词进行检索
-    get_data(RAW_FILE="output.csv",OUT_FILE="reserves.csv",KEYWORD="Olympic Dam")
+    get_data(RAW_FILE="output.csv",OUT_FILE="reserves.csv",KEYWORD=keyword)
+
+
+if __name__ == "__main__":
+    cli()
 
 
 
